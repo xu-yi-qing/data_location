@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>中国行政区划查询</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f6f8; color: #333; }
+        header { background: #2c3e50; color: #fff; padding: 18px 32px; font-size: 20px; font-weight: bold; letter-spacing: 1px; }
+        .container { max-width: 900px; margin: 28px auto; padding: 0 16px; }
+        .card { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.08); padding: 24px; margin-bottom: 24px; }
+        .card h2 { font-size: 16px; font-weight: 600; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid #2c3e50; color: #2c3e50; }
+        .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+        select, input[type=text], input[type=search] {
+            border: 1px solid #d0d5dd; border-radius: 6px; padding: 8px 12px;
+            font-size: 14px; outline: none; background: #fff;
+        }
+        select { min-width: 150px; cursor: pointer; }
+        input[type=text], input[type=search] { flex: 1; min-width: 200px; }
+        select:focus, input:focus { border-color: #2c3e50; }
+        button {
+            background: #2c3e50; color: #fff; border: none; border-radius: 6px;
+            padding: 8px 20px; font-size: 14px; cursor: pointer;
+        }
+        button:hover { background: #1a252f; }
+        button.secondary { background: #7f8c8d; }
+        button.secondary:hover { background: #636e72; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 12px; }
+        th { background: #ecf0f1; color: #2c3e50; font-weight: 600; padding: 10px 14px; text-align: left; }
+        td { padding: 9px 14px; border-bottom: 1px solid #eee; }
+        tr:last-child td { border-bottom: none; }
+        .tag { display: inline-block; background: #e8f4fd; color: #2980b9; border-radius: 4px; padding: 2px 8px; font-size: 12px; margin-right: 4px; }
+        .tag.old { background: #fdf2e9; color: #d35400; }
+        .empty { color: #aaa; padding: 12px 14px; font-size: 14px; }
+        .search-result { list-style: none; border: 1px solid #eee; border-radius: 6px; overflow: hidden; margin-top: 10px; }
+        .search-result li { padding: 9px 14px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .search-result li:last-child { border-bottom: none; }
+        .search-result li:hover { background: #f0f4f8; }
+        .code-badge { background: #eaf0fb; color: #2c3e50; border-radius: 4px; padding: 2px 7px; font-size: 12px; font-family: monospace; }
+        .valid { color: #27ae60; font-weight: 600; }
+        .invalid { color: #e74c3c; font-weight: 600; }
+        .tip { font-size: 12px; color: #999; margin-top: 6px; }
+        .street-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .street-item { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 5px; padding: 5px 12px; font-size: 13px; }
+        .two-table { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 640px) { .two-table { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+<header>中国行政区划查询</header>
+<div class="container">
+
+    <!-- 三级联动 + 历史查询 -->
+    <div class="card">
+        <h2>行政区划历史查询</h2>
+        <div class="row">
+            <select id="selProv"><option value="">-- 选择省份 --</option></select>
+            <select id="selCity"><option value="">-- 选择城市 --</option></select>
+            <select id="selDist"><option value="">-- 选择区县 --</option></select>
+            <button class="secondary" onclick="loadStreets()">查看街道</button>
+        </div>
+        <div id="historyResult" class="two-table"></div>
+        <div id="streetResult"></div>
+    </div>
+
+    <!-- 模糊搜索 -->
+    <div class="card">
+        <h2>行政区划模糊搜索</h2>
+        <div class="row">
+            <input type="text" id="searchInput" placeholder="输入地名关键词，如：朝阳、西湖区" oninput="doSearch()"/>
+            <label style="font-size:13px;color:#666;">
+                <input type="checkbox" id="chkList2" onchange="doSearch()"> 含管理区
+            </label>
+        </div>
+        <ul id="searchResult" class="search-result" style="display:none"></ul>
+        <div id="searchDetail" class="two-table" style="margin-top:12px"></div>
+    </div>
+
+    <!-- 身份证解析 -->
+    <div class="card">
+        <h2>身份证号码解析</h2>
+        <div class="row">
+            <input type="search" id="idInput" placeholder="请输入18位身份证号码" maxlength="18"/>
+            <button onclick="parseIdCard()">查询</button>
+        </div>
+        <div id="idResult"></div>
+    </div>
+
+</div>
+<script src="app.js"></script>
+</body>
+</html>
