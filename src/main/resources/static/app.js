@@ -29,6 +29,8 @@ selProv.addEventListener('change', function() {
     clearHistory();
     if (!selProv.value) return;
 
+    loadHistory(selProv.value);
+
     get('/api/regions/cities?province=' + selProv.value).then(function(res) {
         if (res.data.length === 0) {
             // 直辖市，直接加载区县
@@ -44,8 +46,13 @@ selProv.addEventListener('change', function() {
 
 selCity.addEventListener('change', function() {
     selDist.innerHTML = '<option value="">-- 选择区县 --</option>';
-    clearHistory();
-    if (!selCity.value) return;
+    if (!selCity.value) {
+        if (selProv.value) loadHistory(selProv.value);
+        else clearHistory();
+        return;
+    }
+
+    loadHistory(selCity.value);
 
     get('/api/regions/districts?city=' + selCity.value).then(function(res) {
         setOptions(selDist, res.data, '-- 选择区县 --');
@@ -54,7 +61,12 @@ selCity.addEventListener('change', function() {
 
 selDist.addEventListener('change', function() {
     document.getElementById('streetResult').innerHTML = '';
-    if (!selDist.value) { clearHistory(); return; }
+    if (!selDist.value) {
+        if (selCity.value) loadHistory(selCity.value);
+        else if (selProv.value) loadHistory(selProv.value);
+        else clearHistory();
+        return;
+    }
     loadHistory(selDist.value);
 });
 
