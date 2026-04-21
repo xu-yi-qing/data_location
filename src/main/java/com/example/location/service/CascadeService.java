@@ -14,9 +14,8 @@ import java.util.stream.Collectors;
  * <p>提供省→市→区县→街道四级行政区划的逐级查询，数据来源于 {@link RegionDataStore#getCurrentMap()}。
  *
  * <p>直辖市（北京11、天津12、上海31、重庆50）特殊处理：
- * GB/T2260 中直辖市没有独立的地级市节点，省级代码直接对应区县级，
- * 因此 {@link #getCities} 对直辖市返回空列表，
- * 前端收到空列表后应直接以省级代码请求 {@link #getDistricts}。
+ * GB/T2260 中直辖市没有独立的地级市节点，{@link #getCities} 返回含省级代码的单元素列表，
+ * 前端选中后直接以该代码请求 {@link #getDistricts}，无需特殊判断空列表。
  */
 @Service
 public class CascadeService {
@@ -45,15 +44,20 @@ public class CascadeService {
     /**
      * 获取指定省下的市级行政区列表。
      *
-     * <p>对直辖市（11/12/31/50）返回空列表，前端应直接调用 {@link #getDistricts} 并传入省级代码。
+     * <p>对直辖市（11/12/31/50）返回包含该省级节点的单元素列表，code 即省级代码，
+     * 前端选中后可直接以该代码调用 {@link #getDistricts} 获取区县列表。
      *
      * @param provinceCode 6位省级代码，如 "130000"
-     * @return 市级 RegionNode 列表；直辖市返回空列表
+     * @return 市级 RegionNode 列表；直辖市返回含省级节点的单元素列表
      */
     public List<RegionNode> getCities(String provinceCode) {
         String prefix = provinceCode.substring(0, 2);
-        // 直辖市无市级节点，直接返回空列表
+        // 直辖市无市级节点，返回省级代码节点，前端可直接用该代码请求 getDistricts
         if (DIRECT_PROV.contains(prefix)) {
+            String name = store.getCurrentMap().get(provinceCode);
+            if (name != null) {
+                return Collections.singletonList(new RegionNode(provinceCode, name));
+            }
             return Collections.emptyList();
         }
         // 过滤出该省前缀 + 末2位为00 + 末4位非0000 的条目（即市级）

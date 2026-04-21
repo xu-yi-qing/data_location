@@ -44,11 +44,11 @@ public class LocationController {
     /**
      * 获取指定省下的市级行政区列表。
      *
-     * <p>直辖市（北京/天津/上海/重庆）无市级节点，返回空数组，
-     * 前端收到空数组后应直接以省级代码请求 {@link #getDistricts}。
+     * <p>直辖市（北京/天津/上海/重庆）无独立市级节点，返回含省级代码的单元素列表，
+     * 前端可直接以该代码请求 {@link #getDistricts}。
      *
      * @param province 6位省级代码，如 "110000"
-     * @return 市级区划列表；直辖市返回空列表
+     * @return 市级区划列表；直辖市返回含省级节点的单元素列表
      */
     @GetMapping("/regions/cities")
     public ApiResponse<List<RegionNode>> getCities(@RequestParam String province) {
