@@ -182,6 +182,10 @@ public class RegionDataStore {
                 // 市级：省名+市名+省名，支持"浙江杭州"、"杭州浙江"两种输入顺序
                 String p = hash.getOrDefault(provKey, "");
                 index.put(key, p + h + p);
+            } else if (key.matches("\\d{2}[89]0\\d{2}")) {
+                // 省直管县级单位：省名+区县名+省名+区县名（跳过不存在的市级）
+                String p = hash.getOrDefault(provKey, "");
+                index.put(key, p + h + p + h + "|" + h + p + h);
             } else {
                 // 区县级：拼接多种排列，支持"北京朝阳"、"朝阳北京"、"朝阳"等各种输入
                 String p = hash.getOrDefault(provKey, "");

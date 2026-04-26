@@ -74,7 +74,8 @@ public class HistoryService {
         // 判断是否为直辖市或省直管县（这两类跳过市级拼接）
         boolean isDirect = "11".equals(provPrefix) || "12".equals(provPrefix)
                         || "31".equals(provPrefix) || "50".equals(provPrefix)
-                        || "90".equals(cityInfix);
+                        || "90".equals(cityInfix) || "80".equals(cityInfix)
+                        || cityKey.equals(provKey);
 
         StringBuilder sb = new StringBuilder();
         // 第一段：省级名称

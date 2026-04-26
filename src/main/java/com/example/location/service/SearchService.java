@@ -112,6 +112,11 @@ public class SearchService {
                 if (!temp.containsKey(provKey)) {
                     result.add(buildResult(key, data));
                 }
+            } else if (key.matches("\\d{2}[89]0\\d{2}")) {
+                // 省直管县级单位：若对应省级已在结果集中则跳过
+                if (!temp.containsKey(provKey)) {
+                    result.add(buildResult(key, data));
+                }
             } else {
                 // 区县级：若对应省级或市级已在结果集中则跳过
                 if (!temp.containsKey(provKey) && !temp.containsKey(cityKey)) {
@@ -170,6 +175,9 @@ public class SearchService {
             fullName = name;
         } else if (code.matches("\\d{4}00")) {
             // 市级：省名 + 市名
+            fullName = data.getOrDefault(provKey, "") + name;
+        } else if (code.matches("\\d{2}[89]0\\d{2}")) {
+            // 省直管县级单位：省名 + 区县名（跳过不存在的市级）
             fullName = data.getOrDefault(provKey, "") + name;
         } else {
             // 区县级：省名 + 市名 + 区县名

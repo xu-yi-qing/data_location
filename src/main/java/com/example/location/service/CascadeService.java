@@ -60,11 +60,13 @@ public class CascadeService {
             }
             return Collections.emptyList();
         }
-        // 过滤出该省前缀 + 末2位为00 + 末4位非0000 的条目（即市级）
+        // 过滤出该省下的市级条目：
+        // 1. 正常地级市：前缀匹配 + 末2位为00 + 非省级
+        // 2. 省直管县级单位：代码第3-4位为80或90（如海南万宁469006、河南济源419001）
         return store.getCurrentMap().entrySet().stream()
             .filter(e -> e.getKey().startsWith(prefix)
-                      && e.getKey().endsWith("00")
-                      && !e.getKey().endsWith("0000"))
+                      && !e.getKey().endsWith("0000")
+                      && (e.getKey().endsWith("00") || e.getKey().matches("\\d{2}[89]0\\d{2}")))
             .map(e -> new RegionNode(e.getKey(), e.getValue()))
             .collect(Collectors.toList());
     }
@@ -83,6 +85,13 @@ public class CascadeService {
         if (cityCode.endsWith("0000")) {
             // 直辖市场景：传入的是省级代码，取前两位作为过滤前缀
             prefix = cityCode.substring(0, 2);
+        } else if (cityCode.matches("\\d{2}[89]0\\d{2}")) {
+            // 省直管县级单位：本身即为区县级，作为区县返回
+            String name = store.getCurrentMap().get(cityCode);
+            if (name != null) {
+                return Collections.singletonList(new RegionNode(cityCode, name));
+            }
+            return Collections.emptyList();
         } else {
             // 普通市：取前四位作为过滤前缀
             prefix = cityCode.substring(0, 4);
